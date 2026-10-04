@@ -72,8 +72,10 @@ starts from the same verified 682-file original input. Current compact evidence
 is [portable-evidence.json](portable-evidence.json); previous kit evidence remains
 in [portable-evidence-v2.json](portable-evidence-v2.json).
 
-Connected Drive upload accepts at most 512 MiB per file, so v3 ZIPs are split
-into 500,000,000-byte parts (8 client / 9 server). The streaming split verifies
+The local upload bridge initially reports a 512 MiB file limit, but the remote
+connector rejects downloads exceeding 100 MiB. The initial 500 MB attempt was
+rejected before a Drive write. V3 ZIPs are therefore split into 100,000,000-byte
+parts (38 client / 43 server). The streaming split verifies
 each complete original ZIP SHA-256. An authored Windows PowerShell reassembly
 script recreates the exact ZIP, checks its complete SHA-256 and preserves source
 parts. Windows PowerShell tests cover byte identity, repeat invocation, missing

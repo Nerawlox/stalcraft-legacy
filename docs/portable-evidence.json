@@ -145,8 +145,14 @@
       "exit": 1
     }
   ],
-  "drive_file_limit_bytes": 536870912,
-  "part_size_bytes": 500000000,
+  "drive_file_limit_bytes": 104857600,
+  "part_size_bytes": 100000000,
   "launcher_source_sha256": "d88dc65db4533d6be6f85096d57835f88fc5aff9dc5d3a3f31ede9ab1954a0c2",
-  "reassembly_source_sha256": "1e24d48bad60748f998beb32b6e5b47cc8bad0745a1c2ba1ddbdcc5b8f811061"
+  "reassembly_source_sha256": "1e24d48bad60748f998beb32b6e5b47cc8bad0745a1c2ba1ddbdcc5b8f811061",
+  "local_upload_bridge_limit_bytes": 536870912,
+  "part_counts": {
+    "client": 38,
+    "server": 43
+  },
+  "initial_500mb_upload": "Rejected by remote 100 MiB limit before Drive action; separate timeout retained in private receipt"
 }
