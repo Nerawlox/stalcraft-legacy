@@ -30,6 +30,51 @@ Selected generated log lines, log hashes, overlay source hashes, and preservatio
 
 The ordinary server launcher was also exercised without diagnostic flags or a timed shutdown: it reached `Done`, accepted the lab's explicit stop flag, saved, and exited normally. The scoreboard and game-object file hashes remained unchanged from the preceding roundtrip. After separating this playable project from the research checkout, compiling `src/` as overlay v25 produced all 43 class payloads byte-identically to tested v24, with no warnings and the same static checks. No research checkout scripts are required to build this project.
 
+## Portable kit validation
+
+Windows x64 client/server kits include the complete trusted Java runtime, natives,
+the unchanged 43-class game overlay, prepared classpath archives and pristine
+assets. The server receives one new RegionsLocal copy: all 682 files match their
+original preparation hashes. Existing lab saves, diagnostic players and logs are
+not copied into the kits. The client has no bundled local world.
+
+The first archive smoke test extracted both kits into new directories containing
+spaces and Cyrillic names and ran their bundled Java from a different working
+directory. Full manifest verification, relocated command construction without
+old checkout paths, unchanged settings during dry run, wildcard/public bind
+rejection, role separation and detection of a deliberately corrupted class all
+passed. The altered class was restored before any game launch.
+
+The dedicated process bound the exact locally assigned IPv4 of the Radmin
+adapter, reached `Done`, loaded/initialized 400 game objects, and accepted the
+TCP-only check. An actual rendered `TransferTest` client completed TCP/FML login,
+received the map/object synchronization and logged a living player/world with
+20 health. The server independently recorded that player with 20 health. The
+client exited normally; the separate stop command requested an orderly server
+save and both processes exited with code zero without timeouts.
+
+This connection stayed on one physical computer. It does not establish that a
+VPN tunnel, a remote machine's firewall, latency or a two-machine session works.
+The Windows firewall was not changed. The packaged helper was checked in DryRun
+under Windows PowerShell 5; its remove path was exercised with a mocked cmdlet
+accepting the validated owned `InputObject`. Public bind/peer scopes are rejected.
+Actual creation/removal of a live firewall rule remains a manual setup step.
+
+Before final delivery, two launcher/tool issues were corrected: repeated ancestor
+filesystem checks made full verification unnecessarily slow, so verification now
+caches those checks within one operation and skips noncritical filesystem checks
+at startup. The helper initially combined `Remove-NetFirewallRule -Name` and
+`-Group`, which belong to different parameter sets; it now passes the already
+validated owned rule through `-InputObject`. Initial archives and test evidence
+are retained separately; final archives are labelled `v2`.
+
+The final v2 archives repeated the complete extraction and smoke test successfully.
+Both full manifests passed; relocated client/server dry runs took 1.00/1.98 seconds
+on the research machine. The actual client joined with 20 health, the server loaded
+and synchronized all 400 objects, and both processes exited normally after the
+explicit stop/save. Archive identities, selected log lines, verification timings
+and log hashes are recorded in [portable-evidence.json](portable-evidence.json).
+
 ## Failures and corrections
 
 - Dedicated startup initially failed on circular vanilla registry/statistics initialization, the missing Smart Moving event class, and client-only profiler state. The overlay initializes the native statistics bootstrap first and supplies narrowly scoped server-safe hooks.

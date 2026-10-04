@@ -1,0 +1,15 @@
+# Portable launcher contract
+
+`app/launcher.jar` is the entry point for a Windows x64 portable kit. The launcher derives the kit root from its own JAR location, so paths with spaces and Unicode work without a Python installation or a system Java setting. The kit includes its own trusted Java 8 runtime. `kit.properties` contains `role=client` or `role=server` and `port=25576`.
+
+Commands are `client`, `server`, `check`, `stop`, and `verify`. Client mode opens Russian prompts for server address, player name, and port unless `--host HOST --username NAME` are supplied. Server mode prompts for a local IPv4 bind address unless `--bind IP` is supplied. Either mode accepts `--port PORT`. Bind addresses must be assigned to a local interface; loopback, RFC1918, CGNAT 100.64/10, and an assigned 26/8 address on an interface named for Radmin VPN are accepted. Wildcard and public addresses are rejected. Player names use 1–16 ASCII letters, digits, or underscore; ports are 1–65535.
+
+Client kits support `check [--host HOST] [--port PORT]`. Without `--host`, a Russian prompt asks for the server address. The command verifies critical application/runtime/native hashes, then attempts a TCP connection to that host and port with a five-second timeout, closes the socket, and reports reachability. It does not launch the game or claim that the Minecraft protocol is working.
+
+`connection.properties` stores the last connection settings and the server bind/port. Server mode changes only `server-ip` and `server-port` in `game/server.properties`, preserving other lines and creating `server.properties.initial.bak` before its first edit. Client and server child output is displayed and written to timestamped `logs/` files. The launcher waits for the child and reports its exit code. Server readiness is reported when the normal `Done (` startup line appears. The `stop` command writes `game/reconstruction-stop.flag` for that kit's server.
+
+`files.sha256` is UTF-8 text with one `SHA256␠␠relative/posix/path` record per immutable payload file. It covers the launcher, overlay, classpath, runtime, native libraries, and pristine game assets. Mutable settings, logs, and game configuration/save state are excluded. Launch, stop and connection check hash critical application/runtime/native payloads. Full `verify` hashes every listed payload and reports progress every 500 files, without launching a game process. Manifest paths may not be absolute, escape the kit root, contain backslashes, or traverse symbolic links.
+
+`--dry-run` is valid with `client` and `server`; it prints the exact working directory and argument vector without saving settings, editing configuration, or starting a child. Client/server `--probe-seconds N` enables the existing opt-in diagnostic hooks for 1–300 seconds. Ordinary launches have no timer and do not terminate unrelated processes.
+
+The JVM commands retain the validated common properties, client/server heap sizes, classpaths, game working directory, offline client session, and native library search path from the existing Python launch scripts. Arguments are passed to `ProcessBuilder` as a list, not through a shell.

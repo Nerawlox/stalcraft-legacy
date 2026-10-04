@@ -38,6 +38,52 @@ Original JAR/native inputs and runtime stay local. Both launcher and probe tools
 
 The probe tools are bounded experiments. They record exit codes but **exit code zero is not a gameplay success criterion**: this recovered launcher can swallow startup failures. Verify server/client logs, actual joined players, synchronized state, and persistence. The script's timeout termination targets its exact child process only.
 
+## Portable Windows kits
+
+`scripts/build_2019_portable.py` packages a verified lab/overlay into independent
+client and server kits. It pins the audited Temurin 8u504 Java executable and ECJ,
+compiles the authored Java 8 launcher, copies the complete trusted runtime and
+natives, and verifies copied bytes. The game profile excludes saves, logs and
+account/server lists. The server receives one fresh copy of RegionsLocal, checked
+against the original world-copy manifest; previously exercised lab worlds are not
+packaged. Outputs must be new directories outside the checkout and input trees.
+
+```powershell
+python scripts/build_2019_portable.py --java $java8Path --ecj $compilerPath --lab $labPath --overlay $overlayPath --role client --output 'E:\transfer\STALCRAFT-Legacy-Client' --zip 'E:\transfer\STALCRAFT-Legacy-Client-Windows-x64.zip'
+python scripts/build_2019_portable.py --java $java8Path --ecj $compilerPath --lab $labPath --overlay $overlayPath --role server --output 'E:\transfer\STALCRAFT-Legacy-Server' --zip 'E:\transfer\STALCRAFT-Legacy-Server-Windows-x64.zip'
+```
+
+`--world-manifest` can select another original-input world-copy manifest. Source
+paths and copy/build reports stay outside the ZIP. Each archive has a SHA-256
+sidecar. `files.sha256` describes immutable runtime/code/natives/assets; mutable
+configuration, saves and player state are deliberately unlisted. Every launcher
+start checks critical runtime/code/natives; `Verify-Files.cmd` also checks assets.
+These checks detect incomplete copies or changes; they are not signed provenance.
+
+Target machines use relative CMDs and the bundled Java, with no Python dependency.
+The ordinary launchers have no diagnostic timer. Command-line probes are opt-in;
+see [portable-launcher-contract.md](portable-launcher-contract.md). The server
+defaults to loopback and permits an explicitly selected assigned private IPv4 or
+CGNAT address. Radmin's 26/8 address is permitted only on a local Radmin interface.
+The manual firewall helper scopes access to the kit's Java, exact bind/peer and TCP
+port. Building/testing does not change the Windows firewall. Physical-PC setup is
+described in [two-pc-setup.md](two-pc-setup.md).
+
+Private kits contain supplied binaries and complete world data. They must not be
+committed or attached to public GitHub releases.
+
+The developer smoke test requires completed archives and their SHA-256 sidecars,
+a new evidence directory and an explicitly chosen assigned private bind address:
+
+```powershell
+python scripts/test_2019_portable.py --client-zip 'E:\transfer\STALCRAFT-Legacy-Client-Windows-x64.zip' --server-zip 'E:\transfer\STALCRAFT-Legacy-Server-Windows-x64.zip' --output 'E:\tests\portable-run-1' --bind 192.168.1.100
+```
+
+It extracts independent copies, checks CRC/SHA-256, verifies relocation and failure
+boundaries, starts a real bounded server/client pair, asserts actual joined player
+state and requests orderly saves. It changes no firewall rules and does not test a
+second physical PC. The sample bind must be replaced with this machine's address.
+
 ## Scope still to validate
 
 See [validation.md](validation.md). Weapon hit/damage accuracy, projectile spawning, remote gun visuals, inventory ownership, advanced movement state, NPC interactions, full-map ID compatibility, and missing backend services need explicit tests. Missing model/collider resources in the supplied package are logged separately. The launchers bind offline-mode networking to loopback port 25576; broader network deployment has not been tested.
