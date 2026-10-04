@@ -1,0 +1,222 @@
+{
+  "schema": 2,
+  "observations": "Actual local processes and client state; limited gameplay milestones, not a complete server.",
+  "records": [
+    {
+      "file": "server-probe-8.stderr.log",
+      "sha256": "a58965bf84184c0c62e0d1e1e0dee5402d12fc096824489e7af54cb2656ca874",
+      "bytes": 1032404,
+      "evidence": {
+        "players=2": "2026-10-04 05:03:13 [INFO] [STDOUT] [RECONSTRUCTION SERVER] ticks=1320 players=2 ProbeAlpha#125@451.5,4.0,-629.5 ProbeBeta#211299@436.5,4.0,-614.5 testBlock=0",
+        "block transition to gold=true": "2026-10-04 05:03:18 [INFO] [STDOUT] [RECONSTRUCTION SERVER] block transition to gold=true",
+        "block transition to diamond=true": "2026-10-04 05:03:28 [INFO] [STDOUT] [RECONSTRUCTION SERVER] block transition to diamond=true",
+        "Saving worlds": "2026-10-04 05:06:05 [INFO] [Minecraft-Server] Saving worlds"
+      }
+    },
+    {
+      "file": "client-alpha-3.stderr.log",
+      "sha256": "32cc1b8847b8e1b1a252e82f761287b0d8a083858f7eaf523812e1501c4e419d",
+      "bytes": 1264021,
+      "evidence": {
+        "players=2 testBlock=41": "2026-10-04 05:03:19 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=ProbeAlpha world=true entity=true screen=mrty id=125 x=451.5 y=5.620000004768372 z=-629.5 players=2 testBlock=41",
+        "testBlock=57": "2026-10-04 05:03:29 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=ProbeAlpha world=true entity=true screen=mrty id=125 x=451.5 y=5.620000004768372 z=-629.5 players=2 testBlock=57"
+      }
+    },
+    {
+      "file": "client-beta-2.stderr.log",
+      "sha256": "b935f07749d01fc9a8073754dedafe9f96b63cfe8c4e85839bde1ff0f5d6fbb2",
+      "bytes": 1249518,
+      "evidence": {
+        "players=2 testBlock=41": "2026-10-04 05:03:19 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=ProbeBeta world=true entity=true screen=mrty id=211299 x=436.5 y=5.620000004768372 z=-614.5 players=2 testBlock=41",
+        "testBlock=57": "2026-10-04 05:03:29 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=ProbeBeta world=true entity=true screen=mrty id=211299 x=436.5 y=5.620000004768372 z=-614.5 players=2 testBlock=57"
+      }
+    },
+    {
+      "file": "server-probe-9.stderr.log",
+      "sha256": "89b2d1cfa860e96523a534db248f6701fb3ce4fd3404850761674c1989d9ed67",
+      "bytes": 253556,
+      "evidence": {
+        "players=0 testBlock=57": "2026-10-04 05:06:55 [INFO] [STDOUT] [RECONSTRUCTION SERVER] ticks=40 players=0 testBlock=57"
+      }
+    },
+    {
+      "file": "server-probe-12.stderr.log",
+      "sha256": "e434e6b9e80cf3b0b46b7004f9f5842884b39068626f6cd3e417606b52f5ba94",
+      "bytes": 95114,
+      "evidence": {
+        "accepted=rakn sender=ProbeAlpha beforeBullets=30": "2026-10-04 05:34:56 [INFO] [STDOUT] [RECONSTRUCTION PACKET] accepted=rakn sender=ProbeAlpha beforeBullets=30",
+        "bullets=29 ammo=12700 reserve=34": "2026-10-04 05:34:58 [INFO] [STDOUT] [RECONSTRUCTION SERVER] ticks=4120 players=2 ProbeAlpha#127@430.12057087005815,4.0,-612.9438081870321 hp=20.0 ProbeBeta#96162@434.5,4.0,-614.5 hp=20.0 testBlock=41 weapon[ProbeAlpha]=20000 bullets=29 ammo=12700 reserve=34",
+        "bullets=30 ammo=12700 reserve=33": "2026-10-04 05:35:02 [INFO] [STDOUT] [RECONSTRUCTION SERVER] ticks=4200 players=2 ProbeAlpha#127@430.12057087005815,4.0,-612.9438081870321 hp=20.0 ProbeBeta#96162@434.5,4.0,-614.5 hp=20.0 testBlock=41 weapon[ProbeAlpha]=20000 bullets=30 ammo=12700 reserve=33",
+        "unwrapped=cfal": "2026-10-04 05:35:00 [INFO] [STDOUT] [RECONSTRUCTION PACKET] unwrapped=cfal"
+      }
+    },
+    {
+      "file": "map-server-3.log",
+      "sha256": "c4b2c8e78c5eccf1e940b8aba81beb997e914c19f30ce60eb534100841280ef6",
+      "bytes": 93084,
+      "evidence": {
+        "Loaded 400 game objects": "2026-10-04 05:56:37 [INFO] [STDOUT] [GOWorldData] Loaded 400 game objects from NBT",
+        "Initialized 400 game objects": "2026-10-04 05:56:37 [INFO] [STDOUT] [GOWorldData] Initialized 400 game objects in world",
+        "<ProbeAlpha> RECON_CHAT_ProbeAlpha": "2026-10-04 05:57:37 [INFO] [Minecraft-Server] <ProbeAlpha> RECON_CHAT_ProbeAlpha",
+        "<ProbeBeta> RECON_CHAT_ProbeBeta": "2026-10-04 05:57:40 [INFO] [Minecraft-Server] <ProbeBeta> RECON_CHAT_ProbeBeta",
+        "Saving worlds": "2026-10-04 05:59:39 [INFO] [Minecraft-Server] Saving worlds"
+      }
+    },
+    {
+      "file": "map-alpha-2.stderr.log",
+      "sha256": "d80fce808026587f4be6fdc266f3f456d6142e08e82ac1646f1ba047dca55391",
+      "bytes": 1234169,
+      "evidence": {
+        "Received peer message in actual chat storage: RECON_CHAT_ProbeBeta": "2026-10-04 05:57:40 [INFO] [STDOUT] [RECONSTRUCTION CHAT] Received peer message in actual chat storage: RECON_CHAT_ProbeBeta",
+        "players=2 testBlock=0": "2026-10-04 05:57:31 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=ProbeAlpha world=true entity=true screen=none id=9 hp=20.0 x=-148.5 y=66.62000000476837 z=-1978.5 players=2 testBlock=0"
+      }
+    },
+    {
+      "file": "map-beta-2.stderr.log",
+      "sha256": "9f3ad0eda57d1d95217a2fdd56776ed425890c0fc4eafa8eb70d847cfc5c7bca",
+      "bytes": 1232257,
+      "evidence": {
+        "Received peer message in actual chat storage: RECON_CHAT_ProbeAlpha": "2026-10-04 05:57:37 [INFO] [STDOUT] [RECONSTRUCTION CHAT] Received peer message in actual chat storage: RECON_CHAT_ProbeAlpha",
+        "players=2 testBlock=0": "2026-10-04 05:57:32 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=ProbeBeta world=true entity=true screen=none id=1341 hp=20.0 x=-145.5 y=66.62000000476837 z=-1986.5 players=2 testBlock=0"
+      }
+    },
+    {
+      "file": "server-probe-13.stderr.log",
+      "sha256": "02cd3dc43d00ba107be8476cccee6ff70995dc2189099fe94e1a90223782bcd1",
+      "bytes": 90117,
+      "evidence": {
+        "accepted=rakn sender=ProbeAlpha beforeBullets=30": "2026-10-04 06:01:43 [INFO] [STDOUT] [RECONSTRUCTION PACKET] accepted=rakn sender=ProbeAlpha beforeBullets=30",
+        "accepted=tgqy sender=ProbeAlpha beforeBullets=29": "2026-10-04 06:01:43 [INFO] [STDOUT] [RECONSTRUCTION PACKET] accepted=tgqy sender=ProbeAlpha beforeBullets=29"
+      }
+    },
+    {
+      "file": "client-beta-6.stderr.log",
+      "sha256": "6d81eb3b4ee303d57a78bcb11df8c9f08fdd8fcc2679fe3623063c7375d83159",
+      "bytes": 1219601,
+      "evidence": {
+        "world=true entity=true": "2026-10-04 06:01:43 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=ProbeBeta world=true entity=true screen=mrty id=44 hp=20.0 x=434.5 y=5.620000004768372 z=-614.5 players=2 testBlock=57"
+      }
+    },
+    {
+      "file": "map-server-5.stderr.log",
+      "sha256": "efd22456ed5cebd5ba538e1a6623d3cba0d990969776cd3b277d6cb69644ac21",
+      "bytes": 83833,
+      "evidence": {
+        "Loaded 400 game objects": "2026-10-04 08:37:45 [INFO] [STDOUT] [GOWorldData] Loaded 400 game objects from NBT",
+        "Initialized 400 game objects": "2026-10-04 08:37:45 [INFO] [STDOUT] [GOWorldData] Initialized 400 game objects in world",
+        "Done (": "2026-10-04 08:37:45 [INFO] [Minecraft-Server] Done (0,439s)! For help, type \"help\" or \"?\"",
+        "players=1": "2026-10-04 08:38:27 [INFO] [STDOUT] [RECONSTRUCTION SERVER] ticks=840 players=1 ProbeAlpha#9@-155.5,65.0,-1983.5 hp=20.0 testBlock=1",
+        "Saving worlds": "2026-10-04 08:39:23 [INFO] [Minecraft-Server] Saving worlds"
+      }
+    },
+    {
+      "file": "map-alpha-4.stderr.log",
+      "sha256": "09d2ceaaffe897898d659c80501d4be163d80a21ddc9fc19c3659e0ba9a3b6a7",
+      "bytes": 1222552,
+      "evidence": {
+        "player=ProbeAlpha world=true entity=true": "2026-10-04 08:38:28 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=ProbeAlpha world=true entity=true screen=none id=9 hp=20.0 x=-155.5 y=66.62000000476837 z=-1983.5 players=1 testBlock=0",
+        "Requesting own client shutdown": "2026-10-04 08:39:11 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] Requesting own client shutdown"
+      }
+    },
+    {
+      "file": "map-server-6.stderr.log",
+      "sha256": "5976935f83eedf54ed09abd918e481c825b9cde14c805c3ff6cee99cbf9a3f2d",
+      "bytes": 74706,
+      "evidence": {
+        "Loaded 400 game objects": "2026-10-04 08:40:09 [INFO] [STDOUT] [GOWorldData] Loaded 400 game objects from NBT",
+        "Initialized 400 game objects": "2026-10-04 08:40:09 [INFO] [STDOUT] [GOWorldData] Initialized 400 game objects in world",
+        "Done (": "2026-10-04 08:40:09 [INFO] [Minecraft-Server] Done (0,528s)! For help, type \"help\" or \"?\"",
+        "Saving worlds": "2026-10-04 08:40:52 [INFO] [Minecraft-Server] Saving worlds"
+      }
+    },
+    {
+      "file": "normal-launch.stderr.log",
+      "sha256": "219bfdad51f81e898669dfa5f5e9906e8aa4b92c1e90aa85989d3cada2166059",
+      "bytes": 72665,
+      "evidence": {
+        "Done (": "2026-10-04 08:46:53 [INFO] [Minecraft-Server] Done (0,538s)! For help, type \"help\" or \"?\"",
+        "Saving worlds": "2026-10-04 08:48:39 [INFO] [Minecraft-Server] Saving worlds",
+        "Stopping server resource streaming manager": "2026-10-04 08:48:39 [INFO] [EffectsAPI] Stopping server resource streaming manager..."
+      }
+    }
+  ],
+  "latest_runs": [
+    {
+      "pid": 9372,
+      "started_unix": 1791092262.52106,
+      "finished_unix": 1791092363.4669642,
+      "exit_code": 0,
+      "timeout": false,
+      "name": "map-server-5"
+    },
+    {
+      "pid": 5172,
+      "started_unix": 1791092299.2287822,
+      "finished_unix": 1791092351.7006972,
+      "exit_code": 0,
+      "timeout": false,
+      "name": "map-alpha-4"
+    },
+    {
+      "pid": 19380,
+      "started_unix": 1791092406.5194268,
+      "finished_unix": 1791092452.5620883,
+      "exit_code": 0,
+      "timeout": false,
+      "name": "map-server-6"
+    }
+  ],
+  "overlay": {
+    "version": "v24",
+    "classes": 43,
+    "compiler_warnings": 0,
+    "static_result": "PASS",
+    "unchanged_method_code": 367,
+    "source_sha256": {
+      "src/BuildBytecodeOverlay.java": "a05890e3d32efcc47b23040d3df4555164ddc05ebe9b78f3f052c0ffaa02dadf",
+      "src/elyf.java": "d19de627921d7b0f8907a277bd351b73c3bacea4e108c30e5c5ab1d90c6c74d0",
+      "src/local/reconstruction/ServerTweaker.java": "dfc935e5ea0cb7c2c090a8dcc8e550d477d18a17eeaacfb1a6efc8717cf2507e",
+      "src/LocalChatHooks.java": "3f443d19fbc21fadc8fbc1665e9104df283f114f1d851c41d0c12e6add820b96",
+      "src/LocalClientProbe.java": "6a81ffd71aeb08d988273dd9c9ddcc648fe4959369512b8cd80ef9011fdc5429",
+      "src/LocalGameObjectHooks.java": "a28eabd38033c42f00553d7993ecb9fc45111c896ae41b6038a27d42ccd82a8d",
+      "src/LocalPacketBridge.java": "791ca4c097b6e90812444f894d447b16fbb30b3d1e0680ebf5e8fab151c2153b",
+      "src/LocalProfilerHooks.java": "8fd9b7164f6c64371783499380fb036617eacbe15c5deb2148dfb1e75b4f4a40",
+      "src/LocalScoreboardHooks.java": "52680c5a13a3774cc362ecc007802fba703b8f110d589c97153dbae8f0210c22",
+      "src/LocalServerMain.java": "4e6c822f35ddbb1aa55a0d9adc0382ad8378481caea2bac3f1f5274ec0744884",
+      "src/LocalServerPlayerHooks.java": "b09d11df345b58720a372523784165be174be77889433c48d878e2e5dde7da06",
+      "src/LocalServerProbe.java": "10678f357880a335a838947a6d03020fe0c5873746e44610f6a9779e27baef62",
+      "src/LocalSmartEventHandler.java": "3c4b406852cb975089d15cb180dc06c2030a0bb2b6060ef6a542ac7ea314e714"
+    }
+  },
+  "map_preservation": {
+    "verified_original_file_count": 682,
+    "original_file_failures": 0,
+    "original_record_counts": {
+      "Objectives": 38,
+      "PlayerScores": 91,
+      "Teams": 10
+    },
+    "all_original_records_and_unknown_metadata_preserved": true,
+    "native_encoding_difference": "Ten empty team Players lists use element tag Byte instead of End; both remain empty.",
+    "additional_score": "ProbeAlpha / health / Int 20",
+    "scoreboard_original_sha256": "31b7f262d31f43d1547ddd682efdc5a8b425ed6756fb862748843607f22a9d7d",
+    "scoreboard_saved_sha256": "3c471c85425dbac0f1caf90ce0a3905300d7bdd3bdfba5bca0ceca6322858a5c",
+    "game_object_unique_uuids": 400,
+    "game_object_compressed_sha256": "c749d60ecbcda821adc32405108863e2aed49aa7969a292b6a5ad25e3cf7cde8",
+    "storage_only": true
+  },
+  "standalone_project_build": {
+    "version": "v25",
+    "compiled_classes": 43,
+    "all_class_payloads_identical_to_tested_v24": true,
+    "compiler_warnings": 0,
+    "static_result": "PASS",
+    "external_research_checkout_required_for_build_scripts": false
+  },
+  "normal_launcher": {
+    "pid": 30284,
+    "exit_code": 0,
+    "diagnostic_flags": false,
+    "stop_flag_saved_world": true
+  }
+}
