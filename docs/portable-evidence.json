@@ -1,77 +1,77 @@
 {
-  "schema": 1,
+  "schema": 2,
   "date": "2026-10-04",
   "result": "PASS",
-  "scope": "Fresh ZIP extraction into paths with spaces and Cyrillic, bundled Java, local TCP/FML through assigned Radmin adapter IPv4",
+  "scope": "Fresh v3 ZIP extraction, full manifests, relocated bundled Java launch and actual TCP/FML client through assigned local Radmin adapter IPv4",
   "physical_two_pc_test": false,
   "vpn_tunnel_test": false,
   "firewall_changed": false,
-  "archives_publicly_uploaded": false,
+  "historical_evidence": "portable-evidence-v2.json",
   "archives": {
     "client": {
-      "name": "STALCRAFT-Legacy-Client-Windows-x64-v2.zip",
-      "sha256": "6d3543dcda6f6aff969b7cf2e5c26027c5e2eb98ec86d10d571c8e60a1c9bc6c",
-      "bytes": 3739951034,
-      "entries": 20097,
-      "immutable_files": 20051,
+      "name": "STALCRAFT-Legacy-Client-Windows-x64-v3.zip",
+      "sha256": "750f88e86bb2efeccd6eded2d78642344fb40a5a71210718160181aa6bf2a25c",
+      "bytes": 3740055481,
+      "entries": 20124,
+      "overlay_classes": 69,
+      "immutable_files": 20078,
       "world_files_verified": 0,
-      "overlay_classes": 43
+      "compile_exit": 0,
+      "compile_output": ""
     },
     "server": {
-      "name": "STALCRAFT-Legacy-Server-Windows-x64-v2.zip",
-      "sha256": "b5c86ee67c5afe2e56396d0b5bfac56b8710a4d8813ae68e236ad4d8c0997fee",
-      "bytes": 4289400795,
-      "entries": 20783,
-      "immutable_files": 20054,
+      "name": "STALCRAFT-Legacy-Server-Windows-x64-v3.zip",
+      "sha256": "5a4e7eba4ff2871b78923697ee075fda7b90f14fa6e3e109f8c91a3c8a840415",
+      "bytes": 4289505656,
+      "entries": 20812,
+      "overlay_classes": 69,
+      "immutable_files": 20081,
       "world_files_verified": 682,
-      "overlay_classes": 43
+      "compile_exit": 0,
+      "compile_output": ""
     }
   },
-  "original_world_files_unchanged": 682,
-  "delivery_world_files_match_original": 682,
-  "launcher_source_sha256": "4b95e0df479ffdb3e12239d596d1a5addde4890031a82e4f55bac27b535dbed3",
-  "firewall_helper_sha256": "1059e702f2e5eb989f4cce02d14863ffd809e0826f7c8771cc33664485e0a268",
   "checks": [
     {
       "name": "client-full-verify",
       "exit_code": 0,
       "expected_exit": 0,
-      "duration_seconds": 150.98,
-      "log_sha256": "c681929be27d38553a8ab4c805f5dc684e2f6bcacc083bc53a9b25fd523e3de4"
+      "duration_seconds": 127.42,
+      "log_sha256": "848797c6784169c39339121274d0e6f86276c7e04632d8f7c28a315fc77da06d"
     },
     {
       "name": "server-full-verify",
       "exit_code": 0,
       "expected_exit": 0,
-      "duration_seconds": 103.38,
-      "log_sha256": "c178aa9089ceeb518e182b218b7ccafb9439b62c6d4dd94ff43a6b4672a95b61"
+      "duration_seconds": 122.97,
+      "log_sha256": "27563114fe89804e0c98cd1514d7c8763f86df18081e34a3688f1734080dfca2"
     },
     {
       "name": "client-relocated-dry-run",
       "exit_code": 0,
       "expected_exit": 0,
-      "duration_seconds": 1.0,
-      "log_sha256": "36bd0606bc6fa114b022ded01bdf7398b9ddfb6aade118b5747cc40a4f508b14"
+      "duration_seconds": 1.16,
+      "log_sha256": "2b643bf7f1da5d6dd4c19532b686e97788723075849fee2d17c37d00056df3c4"
     },
     {
       "name": "server-relocated-dry-run",
       "exit_code": 0,
       "expected_exit": 0,
-      "duration_seconds": 1.98,
-      "log_sha256": "220b30bc8971f3f788d6fc57d38e2758f4132d00a1752451ba7cd7a54fab64f5"
+      "duration_seconds": 2.06,
+      "log_sha256": "07f150185bb3c35b787a65e187a8e04546a526a9e026d8ee7fd9dcb59ed2f584"
     },
     {
       "name": "reject-wildcard-bind",
       "exit_code": 1,
       "expected_exit": 1,
-      "duration_seconds": 1.0,
+      "duration_seconds": 1.01,
       "log_sha256": "ea135800ec09795f93b6be3d17af8400a03087d3a84cdd33777747df6cea6cf0"
     },
     {
       "name": "reject-public-bind",
       "exit_code": 1,
       "expected_exit": 1,
-      "duration_seconds": 1.0,
+      "duration_seconds": 1.03,
       "log_sha256": "ea135800ec09795f93b6be3d17af8400a03087d3a84cdd33777747df6cea6cf0"
     },
     {
@@ -85,58 +85,68 @@
       "name": "reject-corrupt-payload",
       "exit_code": 1,
       "expected_exit": 1,
-      "duration_seconds": 0.41,
+      "duration_seconds": 0.45,
       "log_sha256": "fb6a3e84d0483b9d363384beaaa00e5ce63c9781b10f692a127d7b1a6a59c04a"
     },
     {
       "name": "tcp-connection-check",
       "exit_code": 0,
       "expected_exit": 0,
-      "duration_seconds": 1.02,
+      "duration_seconds": 0.97,
       "log_sha256": "b5c70fa6e8b7dd4c4ea519bd1b5eb0b734762cdf45125e0ded3d19cee588e598"
     },
     {
       "name": "orderly-stop-request",
       "exit_code": 0,
       "expected_exit": 0,
-      "duration_seconds": 1.16,
+      "duration_seconds": 1.06,
       "log_sha256": "bc7c568759713790f08fe42e33a04dc24deffe4bf4acacd7a86b1e8841b68a3c"
     }
   ],
   "processes": [
     {
       "name": "portable-server",
-      "exit_code": 0,
       "timeout": false,
-      "log_sha256": "cb2f3d7cd0904be0b811f901e15fb45200a24d61df334e077a0a78f4db9ce025",
-      "selected_lines": [
-        "2026-10-04 10:04:26 [INFO] [STDOUT] [GOWorldData] Loaded 400 game objects from NBT",
-        "2026-10-04 10:04:26 [INFO] [STDOUT] [GOWorldData] Initialized 400 game objects in world",
-        "2026-10-04 10:04:27 [INFO] [Minecraft-Server] Done (0,598s)! For help, type \"help\" or \"?\"",
-        "2026-10-04 10:04:38 [INFO] [STDOUT] [GOWorldData] Synced 400 game objects to player TransferTest (dim 0)",
-        "2026-10-04 10:05:19 [INFO] [Minecraft-Server] Saving chunks for level 'RegionsLocal-test'/Overworld"
-      ]
+      "exit_code": 0,
+      "log_sha256": "e37f46bff24fc534d4d7a62b7e932b00b0088f51b4b12d708c63b7834a2a22c4"
     },
     {
       "name": "portable-client",
-      "exit_code": 0,
       "timeout": false,
-      "log_sha256": "a5b50bde8f9140db02f74ce73590e6451876bc79a04f3e31c22f35d0d8a14aea",
-      "selected_lines": [
-        "2026-10-04 10:04:39 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=TransferTest world=true entity=true screen=none id=9 hp=20.0 x=-150.5 y=66.62000000476837 z=-1979.5 players=1 testBlock=0",
-        "2026-10-04 10:05:17 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] Requesting own client shutdown",
-        "Процесс завершён, код=0"
-      ]
+      "exit_code": 0,
+      "log_sha256": "8cca14347dbc56abee517e76b6cf1dee1cc91fda3a2ff3a1ad60c841dd575f96"
     }
   ],
-  "firewall_helper_checks": [
-    "Windows PowerShell 5 create/remove DryRun",
-    "Public bind/peer rejected",
-    "Remove InputObject parameter-set checked and exercised with mocked cmdlet"
+  "joined_player_confirmed": true,
+  "archive_reassembly_tests": [
+    {
+      "case": "valid",
+      "result": "PASS",
+      "exit": 0
+    },
+    {
+      "case": "missing",
+      "result": "PASS",
+      "exit": 1
+    },
+    {
+      "case": "corrupt",
+      "result": "PASS",
+      "exit": 1
+    },
+    {
+      "case": "existing",
+      "result": "PASS",
+      "exit": 1
+    },
+    {
+      "case": "traversal",
+      "result": "PASS",
+      "exit": 1
+    }
   ],
-  "limits": [
-    "One local physical machine; remote firewall and VPN tunnel untested",
-    "Existing combat/NPC/backend limitations remain",
-    "Full map traversal not tested"
-  ]
+  "drive_file_limit_bytes": 536870912,
+  "part_size_bytes": 500000000,
+  "launcher_source_sha256": "d88dc65db4533d6be6f85096d57835f88fc5aff9dc5d3a3f31ede9ab1954a0c2",
+  "reassembly_source_sha256": "1e24d48bad60748f998beb32b6e5b47cc8bad0745a1c2ba1ddbdcc5b8f811061"
 }

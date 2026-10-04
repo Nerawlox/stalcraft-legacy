@@ -1,6 +1,6 @@
 # Next combat milestone
 
-This is a static review of the hash-pinned package, not a successful damage test. Current multiplayer evidence establishes ammunition state changes; target damage, projectile impact, and PvP accuracy still need runtime tests.
+This document preserves the initial static review and work order. The subsequent overlay v36 stage now has runtime evidence for hitscan damage, ammunition, cadence, occlusion and creative invulnerability; see [validation.md](validation.md) and [the current stage](test-stage-2026-10-04.md). Projectile impact, complete gun visuals and broader PvP accuracy remain unverified. The findings below describe the supplied offline handler before these fixes.
 
 ## Retained paths
 

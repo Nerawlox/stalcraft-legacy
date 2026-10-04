@@ -3,6 +3,7 @@ import local.stalcraft.OfflineHook;
 
 /** Tick hook for bounded diagnostic clients; remote clients avoid integrated-world edits. */
 public final class LocalClientProbe {
+    private static boolean itemCatalogReported;
     private static long started;
     private static long lastReport;
     private static long reloadRequested;
@@ -26,6 +27,12 @@ public final class LocalClientProbe {
         qlfw client = (qlfw) value;
         if (client._H != null) OfflineHook.tick(value);
         if (!Boolean.getBoolean("reconstruction.clientProbe")) return;
+        if (!itemCatalogReported && client._r != null && !codechicken.nei.ItemList.items.isEmpty()) {
+            itemCatalogReported = true;
+            System.out.println("[RECONSTRUCTION ITEM CATALOG] entries=" + codechicken.nei.ItemList.items.size()
+                + " excluded=" + codechicken.nei.api.ItemInfo.excludeIds.size());
+        }
+        LocalCombatClientProbe.tick(client);
         long now = System.currentTimeMillis();
         if (started == 0) started = now;
         if (Boolean.getBoolean("reconstruction.chatProbe") && client._t != null && client._r != null) {
@@ -77,7 +84,7 @@ public final class LocalClientProbe {
                 new cfal(-1).sendToServer();
                 reloadRequested = now;
                 System.out.println("[RECONSTRUCTION GAMEPLAY] Sent native automatic reload request");
-            } else if (reloadRequested != 0 && shotRequested == 0 && now - reloadRequested > 4000 && grkk._H(held) > 0) {
+            } else if (!Boolean.getBoolean("reconstruction.combatProbe") && reloadRequested != 0 && shotRequested == 0 && now - reloadRequested > 4000 && grkk._H(held) > 0) {
                 new rakn().sendToServer();
                 shotRequested = now;
                 System.out.println("[RECONSTRUCTION GAMEPLAY] Sent native shoot request");

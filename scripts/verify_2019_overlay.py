@@ -162,6 +162,88 @@ def main():
     basejar, patchjar = cp / "classes.jar", cp / "offline-patches.jar"
     reports = []
 
+    browser_owner = "local/stalcraft/CreativeItemBrowserHook"
+    browser_targets = (
+        ("codechicken/nei/NEIClientConfig", ("loadWorld", "(Ljava/lang/String;)V"), "reveal"),
+        ("codechicken/nei/NEIServerConfig", ("authenticatePacket", "(Lgsye;Lcodechicken/lib/packet/PacketCustom;)Z"), "authenticate"),
+        ("codechicken/nei/NEIServerUtils", ("givePlayerItem", "(Lgsye;Lvoib;ZLjava/util/LinkedList;Z)V"), "give"),
+    )
+    for name, key, kind in browser_targets:
+        before, after, old, new, report = check_common(read_entry(basejar, name + ".class"),
+            class_from_dir(overlay, name), name, {key})
+        original = instruction_stream(before, old[key])
+        actual = instruction_stream(after, new[key])
+        if kind == "reveal":
+            expected = []
+            for token in original:
+                if token == (177, ""):
+                    expected += [(184, (browser_owner, "revealAllRegisteredItems", "()Z", 10)), (87, "")]
+                expected.append(token)
+            if actual != expected: raise AssertionError("NEI reveal changed unapproved instructions")
+        else:
+            prefix = ([(0, ""), (0, ""), (42, ""), (43, ""), (184, (browser_owner, "rejectNonCreativeItemPacket", "(Ljava/lang/Object;Ljava/lang/Object;)Z", 10)), (153, "0005"), (3, ""), (172, "")]
+                if kind == "authenticate" else [(42, ""), (184, (browser_owner, "isCreativePlayer", "(Ljava/lang/Object;)Z", 10)), (154, "0004"), (177, "")])
+            # tableswitch alignment can change padding; operands remain the same
+            # because these prefixes have lengths divisible by four (12 and 8).
+            if actual != prefix + original: raise AssertionError("NEI creative guard changed unapproved instructions")
+        report["browser_hook"] = kind
+        reports.append(report)
+
+    def delegation_tokens(descriptor, hook, instance=False):
+        # Audited targets below use only reference and int parameters.
+        args, pos, local, result = descriptor[1:descriptor.index(")")], 0, 0, []
+        if instance:
+            result.append((42, "")); local = 1
+        while pos < len(args):
+            kind = args[pos]
+            if kind == "L":
+                pos = args.index(";", pos) + 1
+                result.append((42 + local, "") if local < 4 else (25, "%02x" % local))
+            elif kind == "I":
+                pos += 1
+                result.append((26 + local, "") if local < 4 else (21, "%02x" % local))
+            else:
+                raise AssertionError("unsupported delegation parameter")
+            local += 1
+        result.append((184, hook + (10,)))
+        result.append(({"V": 177, "Z": 172, "L": 176}[descriptor[descriptor.index(")") + 1]], ""))
+        return result
+
+    for name, key, hook in (
+        ("gsye", ("func_70003_b", "(ILjava/lang/String;)Z"),
+         ("LocalPermissionHooks", "canUseCommand", "(Lgsye;ILjava/lang/String;)Z")),
+        ("laun", ("_g", "(Ljava/lang/String;)Z"),
+         ("LocalPermissionHooks", "isAdministrator", "(Llaun;Ljava/lang/String;)Z")),
+    ):
+        allowed = {key}
+        join = ("_a", "(Lemzk;Lgsye;)V")
+        if name == "laun": allowed.add(join)
+        before, after, _, _, report = check_common(read_entry(patchjar, name + ".class"),
+            class_from_dir(overlay, name), name, allowed)
+        if instruction_stream(after, find_method(after, *key)) != delegation_tokens(key[1], hook, True):
+            raise AssertionError("unexpected permission delegation " + name)
+        if name == "laun":
+            old_tokens = instruction_stream(before, find_method(before, *join))
+            expected = []
+            if old_tokens.count((177, "")) != 1: raise AssertionError("expected one login return")
+            for token in old_tokens:
+                if token == (177, ""):
+                    expected.extend([(44, ""), (184, ("LocalPermissionHooks", "forceAdventureForTestJoin", "(Lgsye;)V", 10))])
+                expected.append(token)
+            if instruction_stream(after, find_method(after, *join)) != expected:
+                raise AssertionError("unexpected login insertion")
+        reports.append(report)
+
+    gamemode_key = ("func_71515_b", "(Lzjad;[Ljava/lang/String;)V")
+    before, after, _, _, report = check_common(read_entry(basejar, "djar.class"),
+        class_from_dir(overlay, "djar"), "djar", {gamemode_key})
+    prefix = [(43, ""), (44, ""),
+        (184, ("LocalPermissionHooks", "isAllowedGamemodeRequest", "(Lzjad;[Ljava/lang/String;)Z", 10)),
+        (154, "0004"), (177, "")]
+    if instruction_stream(after, find_method(after, *gamemode_key)) != prefix + instruction_stream(before, find_method(before, *gamemode_key)):
+        raise AssertionError("gamemode command must only prepend its exact self-target guard")
+    reports.append(report)
+
     # Profiler predicate: this is the sole method replacement previously guarded by builder.
     before, after, old, new, report = check_common(
         read_entry(basejar, "izmo.class"), class_from_dir(overlay, "izmo"), "izmo", {("_l", "()Z")})
@@ -317,6 +399,18 @@ def main():
     if shoot_method not in {(m.name, m.descriptor) for m in handler_before.methods}:
         raise AssertionError("original handleWeaponShoot signature missing")
     stat_method_keys = set()
+    policy_delegations = {
+        ("isPlayerOp", "(Llaun;Ljava/lang/String;)Z"): ("LocalPermissionHooks", "isAdministrator", "(Llaun;Ljava/lang/String;)Z"),
+        ("beforeBlockPlace", "(Lgsye;Lwaom;)V"): ("LocalInventoryHooks", "beforeBlockPlace", "(Lgsye;Lwaom;)V"),
+        ("getStackFromSlot", "(Ljlas;Ldhmd;Lhtyp;)Lvoib;"): ("LocalInventoryHooks", "getStackFromSlot", "(Ljlas;Ldhmd;Lhtyp;)Lvoib;"),
+        ("setStackToSlot", "(Ljlas;Ldhmd;Lhtyp;Lvoib;)V"): ("LocalInventoryHooks", "setStackToSlot", "(Ljlas;Ldhmd;Lhtyp;Lvoib;)V"),
+        ("handleWeaponHit", "(Lrrmj;Ljlas;)V"): ("LocalCombatHooks", "handleHit", "(Lrrmj;Ljlas;)V"),
+        ("handleWeaponShoot", "(Lrakn;Ljlas;)V"): ("LocalCombatHooks", "handleShoot", "(Lrakn;Ljlas;)V"),
+        ("handleWeaponFireMode", "(Ltgqy;Ljlas;)V"): ("LocalCombatHooks", "handleFireMode", "(Ltgqy;Ljlas;)V"),
+        ("handleMeleeAttack", "(Lozfd;Ljlas;)V"): ("LocalCombatHooks", "handleMelee", "(Lozfd;Ljlas;)V"),
+    }
+    creative_key = ("handleCreativeSetSlot", "(Lgsye;ILvoib;)V")
+    mode_inventory_key = ("onGameModeChanged", "(Lgsye;Lenhr;)V")
     stat_call = (182, ("gloomyfolken/mods/stalker/misc/qlfw", "_f", "()V", 10))
     for candidate in handler_before.methods:
         if candidate.code is not None and stat_call in instruction_stream(handler_before, candidate):
@@ -325,7 +419,17 @@ def main():
         raise AssertionError("expected exactly two methods with original client stat calls")
     before, after, old, new, report = check_common(
         handler_before_raw, class_from_dir(overlay, handler), handler,
-        {("handle", descriptor), ("reconstruction$handle", descriptor), shoot_method} | stat_method_keys)
+        {("handle", descriptor), ("reconstruction$handle", descriptor), shoot_method, creative_key, mode_inventory_key} | stat_method_keys | set(policy_delegations))
+    mode_prefix = [(42, ""), (43, ""), (184, ("LocalTestInventoryModeHooks", "onGameModeChanged", "(Lgsye;Lenhr;)V", 10))]
+    if instruction_stream(after, new[mode_inventory_key]) != mode_prefix + instruction_stream(before, old[mode_inventory_key]):
+        raise AssertionError("mode-change inventory transfer must precede unchanged native syncs")
+    for key, hook in policy_delegations.items():
+        if instruction_stream(after, find_method(after, *key)) != delegation_tokens(key[1], hook):
+            raise AssertionError("unexpected handler policy delegation " + key[0])
+    creative_prefix = [(42, ""), (27, ""), (44, ""),
+        (184, ("LocalInventoryHooks", "validCreative", "(Lgsye;ILvoib;)Z", 10)), (154, "0004"), (177, "")]
+    if instruction_stream(after, find_method(after, *creative_key)) != creative_prefix + instruction_stream(before, find_method(before, *creative_key)):
+        raise AssertionError("creative hook must only prepend the exact validation guard")
     if ("reconstruction$handle", descriptor) not in new:
         raise AssertionError("original ServerPacketHandler.handle missing under reconstruction$handle")
     old_handler = find_method(before, "handle", descriptor)
@@ -350,24 +454,24 @@ def main():
     expected_hooks = {("LocalServerPlayerHooks", "refresh", "(Lgloomyfolken/mods/stalker/misc/qlfw;)V", 10),
                       ("LocalServerPlayerHooks", "armor", "(Lgloomyfolken/mods/stalker/misc/qlfw;)V", 10),
                       ("LocalServerPlayerHooks", "discardInvalidShotBroadcast", "(Lizjo;I)V", 10)}
-    if len(new_calls) != 3 or {token[1] for _, token in new_calls} != expected_hooks:
-        raise AssertionError("expected refresh, armor, and shot-broadcast hooks, got %r" % (new_calls,))
+    expected_hooks.remove(discard_shot[1])
+    if len(new_calls) != 2 or {token[1] for _, token in new_calls} != expected_hooks:
+        raise AssertionError("expected refresh and armor hooks, got %r" % (new_calls,))
     old_shoot = instruction_stream(handler_before, find_method(handler_before, *shoot_method))
     new_shoot = instruction_stream(after, find_method(after, *shoot_method))
     assert_once(old_shoot, shot_broadcast, "original handleWeaponShoot dimension broadcast")
     if old_shoot.count(discard_shot) != 0:
         raise AssertionError("original handleWeaponShoot already contains the discard hook")
-    expected_shoot = list(old_shoot)
-    expected_shoot[expected_shoot.index(shot_broadcast)] = discard_shot
+    expected_shoot = delegation_tokens(shoot_method[1], policy_delegations[shoot_method])
     if new_shoot != expected_shoot:
-        raise AssertionError("handleWeaponShoot changed beyond the one broadcast-call redirection")
+        raise AssertionError("handleWeaponShoot must delegate to the explicit unsupported-projectile path")
     hook_info = parse_class(class_from_dir(overlay, "LocalServerPlayerHooks"))
     discard_method = find_method(hook_info, "discardInvalidShotBroadcast", "(Lizjo;I)V")
     if instruction_stream(hook_info, discard_method) != [(177, "")]:
         raise AssertionError("discardInvalidShotBroadcast must remain a side-effect-free no-op")
     reports.append({"class": handler, "method": shoot_method[0],
                     "changed_call": [shot_broadcast, discard_shot],
-                    "all_other_instructions_unchanged": True,
+                    "old_projectile_handler_replaced": True,
                     "discard_hook_is_noop": True})
     hook_for = {"refreshPlayerStats": (184, ("LocalServerPlayerHooks", "refresh",
                                                    "(Lgloomyfolken/mods/stalker/misc/qlfw;)V", 10)),

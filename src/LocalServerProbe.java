@@ -40,10 +40,12 @@ public final class LocalServerProbe {
         for (Object item : players) if (((gsye) item).func_110143_aJ() <= 0) allAlive = false;
         if (allAlive) sharedTicks++;
         if (!"ReconstructionTest".equals(value._j())) return;
+        if (Boolean.getBoolean("reconstruction.readinessProbe")) LocalReadinessProbe.tick(value);
         if (sharedTicks >= 40 && Boolean.getBoolean("reconstruction.gameplayProbe") && !fixturePrepared) {
             fixturePrepared = true;
             prepareWeaponFixture(value, players);
         }
+        if (fixturePrepared) LocalCombatServerProbe.tick(value);
         if (sharedTicks >= 100 && !firstChange) {
             firstChange = true;
             boolean changed = value._a(0).func_72832_d(445, 4, -625, 41, 0, 3);
@@ -68,9 +70,21 @@ public final class LocalServerProbe {
                 if (compatible == null) continue;
                 for (int ammo : compatible) {
                     if (ammo <= 0 || ammo >= lrhp.field_77698_e.length || lrhp.field_77698_e[ammo] == null) continue;
-                    ((buzu) server)._a("gamemode 1 ProbeAlpha", server);
-                    ServerPacketHandler.handleCreativeSetSlot(player, 36, weapon);
-                    ServerPacketHandler.giveItemToPlayer(player, new voib(ammo, 64, 0));
+                    if (Boolean.getBoolean("reconstruction.combatProbe")) {
+                        ifxb inventory = ifxb._a(player);
+                        mact._a(weapon, player.field_71092_bJ);
+                        if (!inventory._d._a()._h().setStackAt(0, weapon))
+                            throw new IllegalStateException("Combat fixture primary equipment rejected firearm");
+                        inventory._b(false); inventory._b(0);
+                        voib reserve = new voib(ammo, 64, 0);
+                        mact._a(reserve, player.field_71092_bJ);
+                        if (!inventory._d._a(reserve, null))
+                            throw new IllegalStateException("Combat fixture rejected ammunition");
+                    } else {
+                        ((buzu) server)._a("gamemode 1 ProbeAlpha", server);
+                        ServerPacketHandler.handleCreativeSetSlot(player, 36, weapon);
+                        ServerPacketHandler.giveItemToPlayer(player, new voib(ammo, 64, 0));
+                    }
                     ServerPacketHandler.syncInventory(player);
                     System.out.println("[RECONSTRUCTION GAMEPLAY] fixture weapon=" + weapon._d + " ammo=" + ammo
                         + " reserve=" + ognf._b(player, ammo) + " target=ProbeAlpha");

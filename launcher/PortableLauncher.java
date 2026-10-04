@@ -172,6 +172,11 @@ public final class PortableLauncher {
                 cpRoot.resolve("offline-patches.jar"), cpRoot.resolve("classes.jar"), cpRoot.resolve("libs.jar"), game.resolve("modassets"));
         List<String> cmd = new ArrayList<String>(); cmd.add(java.toString());
         cmd.addAll(Arrays.asList("-Xms256m", "-Xmx2g", "-Djava.awt.headless=true"));
+        Properties test = readProperties(safeResolve("test-server.properties"));
+        if ("true".equalsIgnoreCase(test.getProperty("adventure-on-join", "false")))
+            cmd.add("-Dstalcraft.test.joinAdventure=true");
+        if ("true".equalsIgnoreCase(test.getProperty("self-gamemode", "false")))
+            cmd.add("-Dstalcraft.test.selfGamemode=true");
         if (seconds > 0) { cmd.add("-Dreconstruction.serverProbe=true"); cmd.add("-Dreconstruction.stopAfterSeconds=" + seconds); }
         cmd.addAll(Arrays.asList(COMMON)); cmd.add("-cp"); cmd.add(joinPaths(cp));
         cmd.addAll(Arrays.asList("net.minecraft.launchwrapper.Launch", "--version", "STALCRAFT-RECONSTRUCTION-2019",

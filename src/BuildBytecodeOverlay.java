@@ -97,6 +97,182 @@ public final class BuildBytecodeOverlay {
         preserveScoreboardMetadata(args[0], args[1]);
         redirectChat(args[2], args[1]);
         redirectGameObjectLifecycle(args[2], args[1]);
+        patchTestPolicies(args[0], args[2], args[1]);
+        patchItemBrowser(args[0], args[1]);
+    }
+
+    private static void patchItemBrowser(String sourceJar, String outputDir) throws Exception {
+        String[] classes = {"codechicken/nei/NEIClientConfig", "codechicken/nei/NEIServerConfig", "codechicken/nei/NEIServerUtils"};
+        for (final String className : classes) {
+            byte[] input;
+            try (ZipFile source = new ZipFile(sourceJar)) {
+                input = readAll(source.getInputStream(source.getEntry(className + ".class")));
+            }
+            ClassReader reader = new ClassReader(input);
+            final ClassWriter writer = new ClassWriter(reader, 0);
+            final int[] matches = {0};
+            reader.accept(new ClassVisitor(Opcodes.ASM5, writer) {
+                public MethodVisitor visitMethod(int access, String name, String desc, String sig, String[] exceptions) {
+                    MethodVisitor original = super.visitMethod(access, name, desc, sig, exceptions);
+                    final boolean reveal = className.endsWith("NEIClientConfig") && name.equals("loadWorld") && desc.equals("(Ljava/lang/String;)V");
+                    final boolean authenticate = className.endsWith("NEIServerConfig") && name.equals("authenticatePacket") && desc.equals("(Lgsye;Lcodechicken/lib/packet/PacketCustom;)Z");
+                    boolean give = className.endsWith("NEIServerUtils") && name.equals("givePlayerItem") && desc.equals("(Lgsye;Lvoib;ZLjava/util/LinkedList;Z)V");
+                    if (!reveal && !authenticate && !give) return original;
+                    matches[0]++;
+                    return new MethodVisitor(Opcodes.ASM5, original) {
+                        public void visitCode() {
+                            super.visitCode();
+                            if (reveal) return;
+                            if (authenticate) { super.visitInsn(Opcodes.NOP); super.visitInsn(Opcodes.NOP); }
+                            super.visitVarInsn(Opcodes.ALOAD, 0);
+                            if (authenticate) super.visitVarInsn(Opcodes.ALOAD, 1);
+                            super.visitMethodInsn(Opcodes.INVOKESTATIC, "local/stalcraft/CreativeItemBrowserHook",
+                                authenticate ? "rejectNonCreativeItemPacket" : "isCreativePlayer",
+                                authenticate ? "(Ljava/lang/Object;Ljava/lang/Object;)Z" : "(Ljava/lang/Object;)Z", false);
+                            org.objectweb.asm.Label valid = new org.objectweb.asm.Label();
+                            super.visitJumpInsn(authenticate ? Opcodes.IFEQ : Opcodes.IFNE, valid);
+                            if (authenticate) super.visitInsn(Opcodes.ICONST_0);
+                            super.visitInsn(authenticate ? Opcodes.IRETURN : Opcodes.RETURN);
+                            super.visitLabel(valid);
+                            super.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+                        }
+                        public void visitInsn(int opcode) {
+                            if (reveal && opcode == Opcodes.RETURN) {
+                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "local/stalcraft/CreativeItemBrowserHook", "revealAllRegisteredItems", "()Z", false);
+                                super.visitInsn(Opcodes.POP);
+                            }
+                            super.visitInsn(opcode);
+                        }
+                        public void visitMaxs(int stack, int locals) { super.visitMaxs(Math.max(stack, 2), locals); }
+                    };
+                }
+            }, 0);
+            if (matches[0] != 1) throw new IllegalStateException("NEI target not unique: " + className);
+            Path output = Paths.get(outputDir, className + ".class");
+            Files.createDirectories(output.getParent());
+            Files.write(output, writer.toByteArray());
+        }
+    }
+
+    private static void patchTestPolicies(String baseJar, String patchJar, String outputDir) throws Exception {
+        delegateMethods(patchJar, outputDir, "gsye", new String[][] {
+            {"func_70003_b", "(ILjava/lang/String;)Z", "LocalPermissionHooks", "canUseCommand", "(Lgsye;ILjava/lang/String;)Z"}
+        }, false);
+        delegateMethods(patchJar, outputDir, "laun", new String[][] {
+            {"_g", "(Ljava/lang/String;)Z", "LocalPermissionHooks", "isAdministrator", "(Llaun;Ljava/lang/String;)Z"}
+        }, true);
+        delegateMethods(baseJar, outputDir, "djar", new String[0][], false);
+        delegateMethods(null, outputDir, "ServerPacketHandler", new String[][] {
+            {"isPlayerOp", "(Llaun;Ljava/lang/String;)Z", "LocalPermissionHooks", "isAdministrator", "(Llaun;Ljava/lang/String;)Z"},
+            {"beforeBlockPlace", "(Lgsye;Lwaom;)V", "LocalInventoryHooks", "beforeBlockPlace", "(Lgsye;Lwaom;)V"},
+            {"getStackFromSlot", "(Ljlas;Ldhmd;Lhtyp;)Lvoib;", "LocalInventoryHooks", "getStackFromSlot", "(Ljlas;Ldhmd;Lhtyp;)Lvoib;"},
+            {"setStackToSlot", "(Ljlas;Ldhmd;Lhtyp;Lvoib;)V", "LocalInventoryHooks", "setStackToSlot", "(Ljlas;Ldhmd;Lhtyp;Lvoib;)V"}
+            ,{"handleWeaponHit", "(Lrrmj;Ljlas;)V", "LocalCombatHooks", "handleHit", "(Lrrmj;Ljlas;)V"}
+            ,{"handleWeaponShoot", "(Lrakn;Ljlas;)V", "LocalCombatHooks", "handleShoot", "(Lrakn;Ljlas;)V"}
+            ,{"handleWeaponFireMode", "(Ltgqy;Ljlas;)V", "LocalCombatHooks", "handleFireMode", "(Ltgqy;Ljlas;)V"}
+            ,{"handleMeleeAttack", "(Lozfd;Ljlas;)V", "LocalCombatHooks", "handleMelee", "(Lozfd;Ljlas;)V"}
+        }, false);
+    }
+
+    /** Replace only declared target bodies; retain every other original method. */
+    private static void delegateMethods(String sourceJar, String outputDir, final String className,
+            final String[][] targets, final boolean creativeJoin) throws Exception {
+        byte[] input;
+        if (sourceJar == null) input = Files.readAllBytes(Paths.get(outputDir, className + ".class"));
+        else try (ZipFile source = new ZipFile(sourceJar)) {
+            input = readAll(source.getInputStream(source.getEntry(className + ".class")));
+        }
+        ClassReader reader = new ClassReader(input);
+        final ClassWriter writer = new ClassWriter(reader, 0);
+        final int[] matches = new int[targets.length];
+        final int[] joins = {0};
+        reader.accept(new ClassVisitor(Opcodes.ASM5, writer) {
+            public MethodVisitor visitMethod(int access, String name, String desc, String sig, String[] exceptions) {
+                for (int i = 0; i < targets.length; i++) {
+                    String[] target = targets[i];
+                    if (!name.equals(target[0]) || !desc.equals(target[1])) continue;
+                    MethodVisitor method = super.visitMethod(access, name, desc, sig, exceptions);
+                    method.visitCode();
+                    int local = 0, stack = 0;
+                    if ((access & Opcodes.ACC_STATIC) == 0) {
+                        method.visitVarInsn(Opcodes.ALOAD, local++); stack++;
+                    }
+                    for (org.objectweb.asm.Type type : org.objectweb.asm.Type.getArgumentTypes(desc)) {
+                        method.visitVarInsn(type.getOpcode(Opcodes.ILOAD), local);
+                        local += type.getSize(); stack += type.getSize();
+                    }
+                    method.visitMethodInsn(Opcodes.INVOKESTATIC, target[2], target[3], target[4], false);
+                    method.visitInsn(org.objectweb.asm.Type.getReturnType(desc).getOpcode(Opcodes.IRETURN));
+                    method.visitMaxs(Math.max(stack, 2), local);
+                    method.visitEnd(); matches[i]++;
+                    return null;
+                }
+                MethodVisitor original = super.visitMethod(access, name, desc, sig, exceptions);
+                if (className.equals("ServerPacketHandler") && name.equals("onGameModeChanged")
+                        && desc.equals("(Lgsye;Lenhr;)V")) {
+                    return new MethodVisitor(Opcodes.ASM5, original) {
+                        public void visitCode() {
+                            super.visitCode();
+                            super.visitVarInsn(Opcodes.ALOAD, 0); super.visitVarInsn(Opcodes.ALOAD, 1);
+                            super.visitMethodInsn(Opcodes.INVOKESTATIC, "LocalTestInventoryModeHooks", "onGameModeChanged", "(Lgsye;Lenhr;)V", false);
+                        }
+                        public void visitMaxs(int stack, int locals) { super.visitMaxs(Math.max(stack, 2), locals); }
+                    };
+                }
+                if (className.equals("djar") && name.equals("func_71515_b")
+                        && desc.equals("(Lzjad;[Ljava/lang/String;)V")) {
+                    return new MethodVisitor(Opcodes.ASM5, original) {
+                        public void visitCode() {
+                            super.visitCode();
+                            super.visitVarInsn(Opcodes.ALOAD, 1);
+                            super.visitVarInsn(Opcodes.ALOAD, 2);
+                            super.visitMethodInsn(Opcodes.INVOKESTATIC, "LocalPermissionHooks", "isAllowedGamemodeRequest", "(Lzjad;[Ljava/lang/String;)Z", false);
+                            org.objectweb.asm.Label valid = new org.objectweb.asm.Label();
+                            super.visitJumpInsn(Opcodes.IFNE, valid);
+                            super.visitInsn(Opcodes.RETURN);
+                            super.visitLabel(valid);
+                            super.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+                        }
+                        public void visitMaxs(int stack, int locals) { super.visitMaxs(Math.max(stack, 2), locals); }
+                    };
+                }
+                if (className.equals("ServerPacketHandler") && name.equals("handleCreativeSetSlot")
+                        && desc.equals("(Lgsye;ILvoib;)V")) {
+                    return new MethodVisitor(Opcodes.ASM5, original) {
+                        public void visitCode() {
+                            super.visitCode();
+                            super.visitVarInsn(Opcodes.ALOAD, 0);
+                            super.visitVarInsn(Opcodes.ILOAD, 1);
+                            super.visitVarInsn(Opcodes.ALOAD, 2);
+                            super.visitMethodInsn(Opcodes.INVOKESTATIC, "LocalInventoryHooks", "validCreative", "(Lgsye;ILvoib;)Z", false);
+                            org.objectweb.asm.Label valid = new org.objectweb.asm.Label();
+                            super.visitJumpInsn(Opcodes.IFNE, valid);
+                            super.visitInsn(Opcodes.RETURN);
+                            super.visitLabel(valid);
+                            super.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+                        }
+                        public void visitMaxs(int stack, int locals) { super.visitMaxs(Math.max(stack, 3), locals); }
+                    };
+                }
+                if (!creativeJoin || !name.equals("_a") || !desc.equals("(Lemzk;Lgsye;)V")) return original;
+                return new MethodVisitor(Opcodes.ASM5, original) {
+                    public void visitInsn(int opcode) {
+                        if (opcode == Opcodes.RETURN) {
+                            super.visitVarInsn(Opcodes.ALOAD, 2);
+                            super.visitMethodInsn(Opcodes.INVOKESTATIC, "LocalPermissionHooks",
+                                "forceAdventureForTestJoin", "(Lgsye;)V", false);
+                            joins[0]++;
+                        }
+                        super.visitInsn(opcode);
+                    }
+                    public void visitMaxs(int stack, int locals) { super.visitMaxs(Math.max(stack, 1), locals); }
+                };
+            }
+        }, 0);
+        for (int i = 0; i < matches.length; i++)
+            if (matches[i] != 1) throw new IllegalStateException("Delegation target not unique: " + className + "." + targets[i][0]);
+        if (creativeJoin && joins[0] != 1) throw new IllegalStateException("Expected one successful login return");
+        Files.write(Paths.get(outputDir, className + ".class"), writer.toByteArray());
     }
 
     private static void preserveScoreboardMetadata(String sourceJar, String outputDir) throws Exception {

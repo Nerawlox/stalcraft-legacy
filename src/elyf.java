@@ -15,6 +15,8 @@ public class elyf extends Thread {
 
     public void run() {
         try {
+            // Login can send custom inventory packets before the first world tick.
+            gloomyfolken.bundle.common.core.dfaj.init();
             nwsu._a(_c, new oiuh(nwsu._a(_c), _a, _b, nwsu._e(_c)));
             if (nwsu._b(_c)) return;
             nwsu._d(_c).func_72552_c(new lrtj(78, nwsu._c(_c)._T()._a(), _a, _b));

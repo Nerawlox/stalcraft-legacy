@@ -49,6 +49,7 @@ def server_command(java, lab, overlay):
     classpath = [overlay, cp / "server-bytecode-overlay.jar", cp / "offline-patches.jar",
                  cp / "classes.jar", cp / "libs.jar", game / "modassets"]
     command = [str(java), "-Xms256m", "-Xmx2g", "-Djava.awt.headless=true"] + common_flags()
+    command += ["-Dstalcraft.test.joinAdventure=true", "-Dstalcraft.test.selfGamemode=true"]
     command += ["-cp", ";".join(map(str, classpath)), "net.minecraft.launchwrapper.Launch",
                 "--version", "STALCRAFT-RECONSTRUCTION-2019", "--gameDir", ".", "--assetsDir", "assets",
                 "--tweakClass", "local.reconstruction.ServerTweaker"]

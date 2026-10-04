@@ -16,6 +16,8 @@ def main():
     parser.add_argument("--name", default="server-probe")
     parser.add_argument("--seconds", type=int, default=90)
     parser.add_argument("--gameplay", action="store_true", help="Opt-in weapon/ammo fixture in the synthetic world")
+    parser.add_argument("--readiness", action="store_true")
+    parser.add_argument("--combat", action="store_true")
     args = parser.parse_args()
     args.java, lab, args.overlay, _ = validate(args.java, args.lab, args.overlay)
     server_command(args.java, lab, args.overlay)  # Also enforce the lab's loopback bind.
@@ -40,6 +42,11 @@ def main():
                "-Dreconstruction.stopAfterSeconds=" + str(args.seconds),
                "-Dreconstruction.serverProbe=true",
                "-Dreconstruction.gameplayProbe=" + str(args.gameplay).lower(),
+               "-Dreconstruction.readinessProbe=" + str(args.readiness).lower(),
+               "-Dreconstruction.readinessInventoryTrace=" + str(args.readiness).lower(),
+               "-Dreconstruction.combatProbe=" + str(args.combat).lower(),
+               "-Dstalcraft.test.joinAdventure=" + str(args.readiness or args.combat).lower(),
+               "-Dstalcraft.test.selfGamemode=" + str(args.readiness or args.combat).lower(),
                "-cp", ";".join(map(str, classpath)), "net.minecraft.launchwrapper.Launch",
                "--version", "STALCRAFT-RECONSTRUCTION-2019", "--gameDir", ".", "--assetsDir", "assets",
                "--tweakClass", "local.reconstruction.ServerTweaker"]

@@ -36,6 +36,15 @@ public final class LocalPacketBridge {
                 recordUnsupported(packet);
                 return;
             }
+            if (packet instanceof nvsj && !LocalInventoryHooks.allow((nvsj) packet, sender.getPlayer())) {
+                ServerPacketHandler.syncInventory(sender.getPlayer());
+                return;
+            }
+            if (packet instanceof bbod) {
+                LocalInventoryHooks.handleSplit((bbod) packet, sender.getPlayer());
+                return;
+            }
+            if (editorRequest(packet) && !LocalPermissionHooks.isAdministrator(sender.getPlayer())) return;
             // The real client uses -1 for automatic compatible-ammo selection.
             if (packet instanceof cfal && ((cfal) packet)._a == -1) ((cfal) packet)._a = 0;
             if (Boolean.getBoolean("reconstruction.gameplayProbe")) {
@@ -62,6 +71,18 @@ public final class LocalPacketBridge {
             || value instanceof mods.gameobjects.packet.server.PacketGameObjectHistoryAction
             || value instanceof mods.gameobjects.packet.server.PacketGameObjectTeleportToCamera
             || value instanceof mods.gameobjects.packet.server.PacketGameObjectInteract
+            || value instanceof mods.gameobjects.packet.server.PacketSwitchLootable
+            || value instanceof mods.gameobjects.packet.server.PacketLootableConfigure
+            || value instanceof mods.gameobjects.packet.server.PacketGameObjectMarkerUpdate
+            || value instanceof mods.gameobjects.packet.server.PacketGameObjectPlaceAttempt;
+    }
+
+    private static boolean editorRequest(dfaj value) {
+        return value instanceof mods.gameobjects.packet.server.PacketGameObjectSet
+            || value instanceof mods.gameobjects.packet.server.PacketGameObjectUpdate
+            || value instanceof mods.gameobjects.packet.server.PacketGameObjectKillRequest
+            || value instanceof mods.gameobjects.packet.server.PacketGameObjectHistoryAction
+            || value instanceof mods.gameobjects.packet.server.PacketGameObjectTeleportToCamera
             || value instanceof mods.gameobjects.packet.server.PacketSwitchLootable
             || value instanceof mods.gameobjects.packet.server.PacketLootableConfigure
             || value instanceof mods.gameobjects.packet.server.PacketGameObjectMarkerUpdate

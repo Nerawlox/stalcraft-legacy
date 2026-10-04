@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "result": "PASS",
+  "scope": "Fresh ZIP extraction into paths with spaces and Cyrillic, bundled Java, local TCP/FML through assigned Radmin adapter IPv4",
+  "physical_two_pc_test": false,
+  "vpn_tunnel_test": false,
+  "firewall_changed": false,
+  "archives_publicly_uploaded": false,
+  "archives": {
+    "client": {
+      "name": "STALCRAFT-Legacy-Client-Windows-x64-v2.zip",
+      "sha256": "6d3543dcda6f6aff969b7cf2e5c26027c5e2eb98ec86d10d571c8e60a1c9bc6c",
+      "bytes": 3739951034,
+      "entries": 20097,
+      "immutable_files": 20051,
+      "world_files_verified": 0,
+      "overlay_classes": 43
+    },
+    "server": {
+      "name": "STALCRAFT-Legacy-Server-Windows-x64-v2.zip",
+      "sha256": "b5c86ee67c5afe2e56396d0b5bfac56b8710a4d8813ae68e236ad4d8c0997fee",
+      "bytes": 4289400795,
+      "entries": 20783,
+      "immutable_files": 20054,
+      "world_files_verified": 682,
+      "overlay_classes": 43
+    }
+  },
+  "original_world_files_unchanged": 682,
+  "delivery_world_files_match_original": 682,
+  "launcher_source_sha256": "4b95e0df479ffdb3e12239d596d1a5addde4890031a82e4f55bac27b535dbed3",
+  "firewall_helper_sha256": "1059e702f2e5eb989f4cce02d14863ffd809e0826f7c8771cc33664485e0a268",
+  "checks": [
+    {
+      "name": "client-full-verify",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "duration_seconds": 150.98,
+      "log_sha256": "c681929be27d38553a8ab4c805f5dc684e2f6bcacc083bc53a9b25fd523e3de4"
+    },
+    {
+      "name": "server-full-verify",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "duration_seconds": 103.38,
+      "log_sha256": "c178aa9089ceeb518e182b218b7ccafb9439b62c6d4dd94ff43a6b4672a95b61"
+    },
+    {
+      "name": "client-relocated-dry-run",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "duration_seconds": 1.0,
+      "log_sha256": "36bd0606bc6fa114b022ded01bdf7398b9ddfb6aade118b5747cc40a4f508b14"
+    },
+    {
+      "name": "server-relocated-dry-run",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "duration_seconds": 1.98,
+      "log_sha256": "220b30bc8971f3f788d6fc57d38e2758f4132d00a1752451ba7cd7a54fab64f5"
+    },
+    {
+      "name": "reject-wildcard-bind",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "duration_seconds": 1.0,
+      "log_sha256": "ea135800ec09795f93b6be3d17af8400a03087d3a84cdd33777747df6cea6cf0"
+    },
+    {
+      "name": "reject-public-bind",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "duration_seconds": 1.0,
+      "log_sha256": "ea135800ec09795f93b6be3d17af8400a03087d3a84cdd33777747df6cea6cf0"
+    },
+    {
+      "name": "reject-wrong-role",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "duration_seconds": 0.12,
+      "log_sha256": "fdfdbce43bc5fae625f13c811807b2b592d65974add8ebf5ba6d54293451ac1f"
+    },
+    {
+      "name": "reject-corrupt-payload",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "duration_seconds": 0.41,
+      "log_sha256": "fb6a3e84d0483b9d363384beaaa00e5ce63c9781b10f692a127d7b1a6a59c04a"
+    },
+    {
+      "name": "tcp-connection-check",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "duration_seconds": 1.02,
+      "log_sha256": "b5c70fa6e8b7dd4c4ea519bd1b5eb0b734762cdf45125e0ded3d19cee588e598"
+    },
+    {
+      "name": "orderly-stop-request",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "duration_seconds": 1.16,
+      "log_sha256": "bc7c568759713790f08fe42e33a04dc24deffe4bf4acacd7a86b1e8841b68a3c"
+    }
+  ],
+  "processes": [
+    {
+      "name": "portable-server",
+      "exit_code": 0,
+      "timeout": false,
+      "log_sha256": "cb2f3d7cd0904be0b811f901e15fb45200a24d61df334e077a0a78f4db9ce025",
+      "selected_lines": [
+        "2026-10-04 10:04:26 [INFO] [STDOUT] [GOWorldData] Loaded 400 game objects from NBT",
+        "2026-10-04 10:04:26 [INFO] [STDOUT] [GOWorldData] Initialized 400 game objects in world",
+        "2026-10-04 10:04:27 [INFO] [Minecraft-Server] Done (0,598s)! For help, type \"help\" or \"?\"",
+        "2026-10-04 10:04:38 [INFO] [STDOUT] [GOWorldData] Synced 400 game objects to player TransferTest (dim 0)",
+        "2026-10-04 10:05:19 [INFO] [Minecraft-Server] Saving chunks for level 'RegionsLocal-test'/Overworld"
+      ]
+    },
+    {
+      "name": "portable-client",
+      "exit_code": 0,
+      "timeout": false,
+      "log_sha256": "a5b50bde8f9140db02f74ce73590e6451876bc79a04f3e31c22f35d0d8a14aea",
+      "selected_lines": [
+        "2026-10-04 10:04:39 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] player=TransferTest world=true entity=true screen=none id=9 hp=20.0 x=-150.5 y=66.62000000476837 z=-1979.5 players=1 testBlock=0",
+        "2026-10-04 10:05:17 [INFO] [STDOUT] [RECONSTRUCTION CLIENT] Requesting own client shutdown",
+        "Процесс завершён, код=0"
+      ]
+    }
+  ],
+  "firewall_helper_checks": [
+    "Windows PowerShell 5 create/remove DryRun",
+    "Public bind/peer rejected",
+    "Remove InputObject parameter-set checked and exercised with mocked cmdlet"
+  ],
+  "limits": [
+    "One local physical machine; remote firewall and VPN tunnel untested",
+    "Existing combat/NPC/backend limitations remain",
+    "Full map traversal not tested"
+  ]
+}

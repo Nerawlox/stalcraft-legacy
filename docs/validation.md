@@ -4,6 +4,35 @@ The first local multiplayer milestone uses an authored binary-compatible overlay
 
 ## Observed results
 
+### Subsequent test stage: overlay v36
+
+The v36 build contains 69 classes, no compiler warnings, and passes the static
+verifier. `readiness-v36-1` uses two actual clients on the synthetic world. It
+checks adventure join mode, self-only creative/adventure commands, the `nrwlx`
+operator roster, native NEI creative-only item grants, and a real inventory
+split (8→6 and 2→4) with invalid-request rejection. A creative-to-adventure
+transition transfers seven fixture items once and leaves no duplicate.
+The native client item catalog contains 2359 entries with zero excluded IDs.
+
+Three malformed hit requests preserve 30 rounds. A valid native hit request
+uses the server tracer: ammunition changes 30→29, damage is 6.8, target health
+changes 20→13.2, and one observer receives the native hit event. An immediate
+second request is rejected by native weapon cadence. A later creative target
+receives no damage; a wall produces a blocked trace; empty ammunition and an
+empty hand are rejected. The three admitted shots consume exactly three rounds.
+The recipient client observes reduced health. All three processes exit normally.
+
+The initial checker incorrectly required the target to remain at 13.2 health
+despite native peaceful regeneration. The retained logs show health 14.2/17.2
+on the recipient and 20→20 at the creative hit. The corrected shared checker
+verifies reduced client health and unchanged health at the creative impact;
+`results-rechecked.json` passes all 18 assertions and records the original log
+hashes. The initial failure and all preceding failed probes remain preserved.
+
+This proves this narrow hitscan path, not all firearm types, melee, projectiles,
+animation, NPC behavior, faction rules or historical backend compatibility.
+See [test-stage-2026-10-04.md](test-stage-2026-10-04.md) for boundaries.
+
 | Test | Evidence | Scope |
 | --- | --- | --- |
 | Dedicated startup | Server reaches `Done`, ticks, creates a fresh flat world, and stops with player/world saves. | Actual dedicated process with server FML initialization. |
@@ -31,6 +60,26 @@ Selected generated log lines, log hashes, overlay source hashes, and preservatio
 The ordinary server launcher was also exercised without diagnostic flags or a timed shutdown: it reached `Done`, accepted the lab's explicit stop flag, saved, and exited normally. The scoreboard and game-object file hashes remained unchanged from the preceding roundtrip. After separating this playable project from the research checkout, compiling `src/` as overlay v25 produced all 43 class payloads byte-identically to tested v24, with no warnings and the same static checks. No research checkout scripts are required to build this project.
 
 ## Portable kit validation
+
+The subsequent v3 kits package overlay v36 (69 classes), adventure joins, the
+`nrwlx` operator roster, self creative/adventure commands, NEI configuration and
+the manual test checklist. Both launcher builds have empty compiler output.
+`portable-validation-v3` passes full manifests, relocation, rejected public and
+wildcard binds, wrong-role and corruption checks, TCP reachability, real FML
+client login and orderly saves. The actual client and server exit normally;
+this remains a single-machine adapter-address test. The delivered server map
+starts from the same verified 682-file original input. Current compact evidence
+is [portable-evidence.json](portable-evidence.json); previous kit evidence remains
+in [portable-evidence-v2.json](portable-evidence-v2.json).
+
+Connected Drive upload accepts at most 512 MiB per file, so v3 ZIPs are split
+into 500,000,000-byte parts (8 client / 9 server). The streaming split verifies
+each complete original ZIP SHA-256. An authored Windows PowerShell reassembly
+script recreates the exact ZIP, checks its complete SHA-256 and preserves source
+parts. Windows PowerShell tests cover byte identity, repeat invocation, missing
+parts, corruption, existing conflicting output and invalid manifest paths.
+
+The following describes the earlier v2 packaging and tests.
 
 Windows x64 client/server kits include the complete trusted Java runtime, natives,
 the unchanged 43-class game overlay, prepared classpath archives and pristine

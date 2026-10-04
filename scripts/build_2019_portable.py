@@ -14,6 +14,7 @@ import subprocess
 import zipfile
 
 from launch_2019_common import validate
+from patch_2019_item_browser import set_value, clear_section_values
 from prepare_2019_world import checked_tree, hash_file, inside, reject_reparse_components
 
 JAVA_SHA = "46df95bb47e2ba2b10736cee2ab543289c66021611f1ec67d0d55d5128228c20"
@@ -85,7 +86,7 @@ def game_file(path):
 def immutable(relative):
     parts = Path(relative).parts
     if parts[0] != "game":
-        return relative not in {"connection.properties", "files.sha256"}
+        return relative not in {"connection.properties", "test-server.properties", "files.sha256"}
     return len(parts) > 1 and parts[1] in IMMUTABLE_GAME
 
 
@@ -159,6 +160,16 @@ def build(args):
     copier.tree(source / "game", Path("game"), game_file)
     copier.file(source / "metadata/modlist.txt", Path("game/modlist.txt"))
     copier.tree(source / "metadata/asmdata", Path("game/mods/asmdata"))
+    nei_client = out / "game/config/NEI.cfg"
+    nei_text = nei_client.read_text(encoding="utf-8-sig")
+    for key, value in (("hidden", "false"), ("widgetsenabled", "true"), ("cheatmode", "2"), ("lockmode", "-1")):
+        nei_text = set_value(nei_text, "inventory", key, value)
+    nei_client.write_text(nei_text, encoding="utf-8")
+    if args.role == "server":
+        nei_server = out / "game/config/NEIServer.cfg"
+        nei_text = clear_section_values(set_value(nei_server.read_text(encoding="utf-8-sig"), "permissions", "item", "ALL"), "BannedBlocks")
+        nei_text = set_value(nei_text, "BannedBlocks", "7:0", "ALL")
+        nei_server.write_text(nei_text, encoding="utf-8")
     world_count = 0
     if args.role == "server":
         world_manifest = args.world_manifest or lab / "world-copy.json"
@@ -177,8 +188,11 @@ def build(args):
                        "server-ip=127.0.0.1\nserver-port=25576\nonline-mode=false\n"
                        "level-name=RegionsLocal-test\nmax-players=8\nview-distance=3\n"
                        "spawn-protection=0\nallow-flight=true\ndifficulty=0\nspawn-monsters=false\n"
+                       "gamemode=2\nforce-gamemode=true\npvp=true\nop-permission-level=4\n"
                        "snooper-enabled=false\nmotd=STALCRAFT Legacy private test\n"
                        "enable-query=false\nenable-rcon=false\n", encoding="ascii")
+        exclusive_text(out / "game/ops.txt", "nrwlx\n", encoding="ascii")
+        exclusive_text(out / "test-server.properties", "adventure-on-join=true\nself-gamemode=true\n", encoding="ascii")
         copier.file(REPO / "scripts/portable-network.ps1", Path("tools/Allow-Connection.ps1"))
         exclusive_text(out / "Start-Server.cmd", java_cmd("server"), encoding="ascii", newline="\r\n")
         exclusive_text(out / "Stop-Server.cmd", java_cmd("stop"), encoding="ascii", newline="\r\n")
@@ -193,6 +207,7 @@ def build(args):
     exclusive_text(out / "kit.properties", "role=" + args.role + "\nport=25576\n", encoding="ascii")
     exclusive_text(out / "connection.properties", settings, encoding="ascii")
     copier.file(REPO / "docs/two-pc-setup.md", Path("READ-ME-RU.txt"))
+    copier.file(REPO / "docs/two-pc-test-checklist.md", Path("TEST-CHECKLIST-RU.txt"))
     _, kit_files = checked_tree(out)
     manifest = []
     total_bytes = 0

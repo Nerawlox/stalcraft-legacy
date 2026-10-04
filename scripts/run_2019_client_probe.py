@@ -18,6 +18,7 @@ def main():
     parser.add_argument("--seconds", type=int, default=100)
     parser.add_argument("--gameplay", action="store_true")
     parser.add_argument("--chat", action="store_true")
+    parser.add_argument("--combat", action="store_true")
     args = parser.parse_args()
     args.java, lab, args.overlay, preparation = validate(args.java, args.lab, args.overlay)
     game = lab / args.username
@@ -43,6 +44,7 @@ def main():
                "--tweakClass", "cpw.mods.fml.common.launcher.FMLTweaker"]
     command.insert(1, "-Dreconstruction.gameplayProbe=" + str(args.gameplay).lower())
     command.insert(1, "-Dreconstruction.chatProbe=" + str(args.chat).lower())
+    command.insert(1, "-Dreconstruction.combatProbe=" + str(args.combat).lower())
     base = lab / "probes" / args.name
     if base.with_suffix(".json").exists():
         raise ValueError("Refusing to overwrite prior evidence")
